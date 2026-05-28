@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Venerem — Inventario</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -130,11 +130,10 @@
   .item-row {
     display: flex;
     align-items: center;
-    padding: 12px 14px;
-    gap: 12px;
-    position: relative;
+    padding: 10px 14px;
+    gap: 10px;
     border-bottom: 1px solid var(--sep);
-    min-height: 62px;
+    min-height: 56px;
   }
   .item-row:last-child { border-bottom: none; }
 
@@ -170,24 +169,25 @@
     overflow: visible;
     text-overflow: unset;
   }
-  .item-badge { font-size: 12px; font-weight: 500; }
+  .item-badge { font-size: 11px; font-weight: 500; }
   .badge-zero { color: var(--red); }
   .badge-low  { color: var(--orange); }
 
+  /* STEPPER COMPACTO */
   .stepper {
     display: flex;
     align-items: center;
     background: rgba(118,118,128,0.12);
-    border-radius: 9px;
+    border-radius: 8px;
     overflow: hidden;
     flex-shrink: 0;
   }
   .step-btn {
     background: none;
     border: none;
-    width: 34px;
-    height: 34px;
-    font-size: 20px;
+    width: 28px;
+    height: 30px;
+    font-size: 18px;
     color: var(--accent);
     cursor: pointer;
     display: flex;
@@ -195,12 +195,13 @@
     justify-content: center;
     font-family: var(--font);
     flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
   }
   .step-btn:active { background: rgba(0,122,255,0.1); }
   .step-num {
-    min-width: 44px;
+    width: 36px;
     text-align: center;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text);
     font-family: var(--font);
@@ -216,8 +217,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 2px solid var(--red);
     border-radius: 8px;
     background: transparent;
@@ -369,7 +370,7 @@ function render() {
 
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-btn';
-    delBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    delBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 18 18" fill="none">
       <path d="M3 5h12" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
       <path d="M6 5V3.5A1.5 1.5 0 017.5 2h3A1.5 1.5 0 0112 3.5V5" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
       <rect x="4.5" y="5" width="9" height="11" rx="1.5" stroke="#FF3B30" stroke-width="1.5"/>
@@ -423,6 +424,7 @@ function render() {
     const minus = document.createElement('button');
     minus.className = 'step-btn';
     minus.textContent = '−';
+    minus.addEventListener('touchend', e => { e.preventDefault(); updateQty(p.id, -1); });
     minus.onclick = () => updateQty(p.id, -1);
 
     const numInp = document.createElement('input');
@@ -437,6 +439,7 @@ function render() {
     const plus = document.createElement('button');
     plus.className = 'step-btn';
     plus.textContent = '+';
+    plus.addEventListener('touchend', e => { e.preventDefault(); updateQty(p.id, 1); });
     plus.onclick = () => updateQty(p.id, 1);
 
     stepper.append(minus, numInp, plus);
