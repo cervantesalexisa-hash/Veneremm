@@ -1,1 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Venerem — Inventario</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --accent: #007AFF;
+    --text: #1C1C1E;
+    --text2: #6D6D72;
+    --sep: rgba(60,60,67,0.12);
+    --red: #FF3B30;
+    --orange: #FF9500;
+    --radius: 14px;
+    --font: -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-user-select: none;
+    user-select: none;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  input, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  .header {
+    padding: 20px 16px 0;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .header h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 14px;
+  }
+
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 0 14px;
+    height: 44px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .add-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font);
+    font-size: 16px;
+    color: var(--text);
+    background: transparent;
+  }
+  .add-row input::placeholder { color: var(--text2); }
+  .btn-add {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .btn-add.visible { opacity: 1; pointer-events: auto; }
+
+  .search-wrap {
+    margin-bottom: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+    height: 0;
+    overflow: hidden;
+  }
+  .search-wrap.visible {
+    opacity: 1;
+    pointer-events: auto;
+    height: auto;
+  }
+  .search-row {
+    display: flex;
+    align-items: center;
+    background: rgba(118,118,128,0.12);
+    border-radius: 10px;
+    padding: 0 10px;
+    height: 36px;
+    gap: 7px;
+  }
+  .search-row svg { flex-shrink: 0; }
+  .search-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 15px;
+    color: var(--text);
+  }
+  .search-row input::placeholder { color: var(--text2); }
+
+  .list-wrap { padding: 0 16px; }
+  .list-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .item-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 12px;
+    position: relative;
+    border-bottom: 1px solid var(--sep);
+    min-height: 62px;
+  }
+  .item-row:last-child { border-bottom: none; }
+
+  .item-left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .item-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font);
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background .15s;
+  }
+  .item-name:focus {
+    background: rgba(0,122,255,0.08);
+    outline: none;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+  .item-badge { font-size: 12px; font-weight: 500; }
+  .badge-zero { color: var(--red); }
+  .badge-low  { color: var(--orange); }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    background: rgba(118,118,128,0.12);
+    border-radius: 9px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .step-btn {
+    background: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font);
+    flex-shrink: 0;
+  }
+  .step-btn:active { background: rgba(0,122,255,0.1); }
+  .step-num {
+    min-width: 44px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: var(--font);
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+  .step-num:focus { background: rgba(0,122,255,0.08); border-radius: 4px; }
+
+  .delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--red);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s, transform .15s;
+    transform: scale(0.85);
+  }
+  .delete-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+    animation: popIn .18s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .delete-btn svg { pointer-events: none; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+    font-size: 15px;
+  }
+  .empty-state .emoji { font-size: 40px; display: block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Venerem</h1>
+  <div class="add-row">
+    <input id="addInput" type="text" placeholder="Nuevo producto…" autocomplete="off" />
+    <button class="btn-add" id="addBtn" onclick="addProduct()">Agregar</button>
+  </div>
+  <div class="search-wrap" id="searchWrap">
+    <div class="search-row">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="5" stroke="#8E8E93" stroke-width="1.5"/>
+        <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input id="searchInput" type="text" placeholder="Buscar" oninput="render()" />
+    </div>
+  </div>
+</div>
+
+<div class="list-wrap" id="listWrap"></div>
+
+<script>
+const STORE_KEY = 'venerem_inv_v5';
+let products = [];
+let longPressTimers = {};
+
+function load() {
+  try { products = JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { products = []; }
+}
+function save() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(products));
+}
+
+function addProduct() {
+  const inp = document.getElementById('addInput');
+  const name = inp.value.trim();
+  if (!name) return;
+  products.unshift({ id: Date.now(), name, qty: 0 });
+  save();
+  inp.value = '';
+  toggleAddBtn();
+  render();
+}
+
+document.getElementById('addInput').addEventListener('input', toggleAddBtn);
+document.getElementById('addInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addProduct();
+});
+function toggleAddBtn() {
+  const v = document.getElementById('addInput').value.trim().length > 0;
+  document.getElementById('addBtn').classList.toggle('visible', v);
+}
+
+function updateQty(id, delta) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  p.qty = Math.max(0, parseFloat((p.qty + delta).toFixed(4)));
+  save();
+  render();
+}
+
+function setQty(id, val) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const n = parseFloat(val);
+  p.qty = isNaN(n) ? p.qty : Math.max(0, parseFloat(n.toFixed(4)));
+  save();
+  render();
+}
+
+function setName(id, val) {
+  const p = products.find(x => x.id === id);
+  if (p && val.trim()) { p.name = val.trim(); save(); }
+}
+
+function deleteProduct(id) {
+  products = products.filter(x => x.id !== id);
+  save();
+  render();
+}
+
+function startLongPress(id, el) {
+  longPressTimers[id] = setTimeout(() => {
+    el.classList.add('show');
+  }, 500);
+}
+function cancelLongPress(id) {
+  clearTimeout(longPressTimers[id]);
+}
+
+function render() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const filtered = q ? products.filter(p => p.name.toLowerCase().includes(q)) : products;
+
+  document.getElementById('searchWrap').classList.toggle('visible', products.length > 0);
+
+  const wrap = document.getElementById('listWrap');
+
+  if (filtered.length === 0) {
+    wrap.innerHTML = `<div class="empty-state"><span class="emoji">📦</span>${q ? 'Sin resultados para "'+q+'"' : 'Agrega tu primer producto arriba.'}</div>`;
+    return;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'list-card';
+
+  filtered.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+
+    const left = document.createElement('div');
+    left.className = 'item-left';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'item-name';
+    nameEl.textContent = p.name;
+    nameEl.contentEditable = false;
+    nameEl.tabIndex = 0;
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete-btn';
+    delBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M3 5h12" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M6 5V3.5A1.5 1.5 0 017.5 2h3A1.5 1.5 0 0112 3.5V5" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="4.5" y="5" width="9" height="11" rx="1.5" stroke="#FF3B30" stroke-width="1.5"/>
+      <line x1="7" y1="8" x2="7" y2="13" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="11" y1="8" x2="11" y2="13" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
+    delBtn.onclick = () => deleteProduct(p.id);
+
+    nameEl.addEventListener('click', () => {
+      nameEl.contentEditable = 'true';
+      nameEl.focus();
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(nameEl);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      cancelLongPress(p.id);
+    });
+    nameEl.addEventListener('blur', () => {
+      nameEl.contentEditable = false;
+      setName(p.id, nameEl.textContent);
+      render();
+    });
+    nameEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+    });
+    nameEl.addEventListener('mousedown', () => startLongPress(p.id, delBtn));
+    nameEl.addEventListener('touchstart', () => startLongPress(p.id, delBtn), { passive: true });
+    nameEl.addEventListener('mouseup', () => cancelLongPress(p.id));
+    nameEl.addEventListener('mouseleave', () => cancelLongPress(p.id));
+    nameEl.addEventListener('touchend', () => cancelLongPress(p.id));
+
+    left.appendChild(nameEl);
+
+    if (p.qty === 0) {
+      const b = document.createElement('span');
+      b.className = 'item-badge badge-zero';
+      b.textContent = 'Sin existencias';
+      left.appendChild(b);
+    } else if (p.qty <= 3) {
+      const b = document.createElement('span');
+      b.className = 'item-badge badge-low';
+      b.textContent = 'Stock bajo';
+      left.appendChild(b);
+    }
+
+    const stepper = document.createElement('div');
+    stepper.className = 'stepper';
+
+    const minus = document.createElement('button');
+    minus.className = 'step-btn';
+    minus.textContent = '−';
+    minus.onclick = () => updateQty(p.id, -1);
+
+    const numInp = document.createElement('input');
+    numInp.className = 'step-num';
+    numInp.type = 'text';
+    numInp.inputMode = 'decimal';
+    numInp.value = p.qty;
+    numInp.addEventListener('focus', function() { this.select(); });
+    numInp.addEventListener('blur', function() { setQty(p.id, this.value); });
+    numInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') this.blur(); });
+
+    const plus = document.createElement('button');
+    plus.className = 'step-btn';
+    plus.textContent = '+';
+    plus.onclick = () => updateQty(p.id, 1);
+
+    stepper.append(minus, numInp, plus);
+    row.append(left, stepper, delBtn);
+    card.appendChild(row);
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(card);
+}
+
+load();
+render();
+</script>
+</body>
+</html>
