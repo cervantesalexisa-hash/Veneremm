@@ -6,230 +6,45 @@
 <title>Venerem — Inventario</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg: #F2F2F7;
-    --card: #FFFFFF;
-    --accent: #007AFF;
-    --text: #1C1C1E;
-    --text2: #6D6D72;
-    --sep: rgba(60,60,67,0.12);
-    --red: #FF3B30;
-    --orange: #FF9500;
-    --radius: 14px;
-    --font: -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, sans-serif;
+    --bg: #F2F2F7; --card: #FFFFFF; --accent: #007AFF;
+    --text: #1C1C1E; --text2: #6D6D72; --sep: rgba(60,60,67,0.12);
+    --red: #FF3B30; --orange: #FF9500; --radius: 14px;
+    --font: -apple-system, "SF Pro Text", BlinkMacSystemFont, sans-serif;
   }
-
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    -webkit-user-select: none;
-    user-select: none;
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
-
-  input, [contenteditable="true"] {
-    -webkit-user-select: text;
-    user-select: text;
-  }
-
-  .header {
-    padding: 20px 16px 0;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 10;
-  }
-  .header h1 {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 14px;
-  }
-
-  .add-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 0 14px;
-    height: 44px;
-    margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .add-row input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-family: var(--font);
-    font-size: 16px;
-    color: var(--text);
-    background: transparent;
-  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); -webkit-user-select: none; user-select: none; min-height: 100vh; padding-bottom: 40px; }
+  input { -webkit-user-select: text; user-select: text; }
+  .header { padding: 20px 16px 0; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .header h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .add-row { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: var(--radius); padding: 0 14px; height: 44px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .add-row input { flex: 1; border: none; outline: none; font-family: var(--font); font-size: 16px; color: var(--text); background: transparent; }
   .add-row input::placeholder { color: var(--text2); }
-  .btn-add {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-family: var(--font);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 4px 0;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .15s;
-    white-space: nowrap;
-  }
+  .btn-add { background: none; border: none; color: var(--accent); font-family: var(--font); font-size: 16px; font-weight: 600; cursor: pointer; padding: 4px 0; opacity: 0; pointer-events: none; transition: opacity .15s; white-space: nowrap; }
   .btn-add.visible { opacity: 1; pointer-events: auto; }
-
-  .search-wrap {
-    margin-bottom: 10px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s;
-    height: 0;
-    overflow: hidden;
-  }
-  .search-wrap.visible {
-    opacity: 1;
-    pointer-events: auto;
-    height: auto;
-  }
-  .search-row {
-    display: flex;
-    align-items: center;
-    background: rgba(118,118,128,0.12);
-    border-radius: 10px;
-    padding: 0 10px;
-    height: 36px;
-    gap: 7px;
-  }
-  .search-row svg { flex-shrink: 0; }
-  .search-row input {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-family: var(--font);
-    font-size: 15px;
-    color: var(--text);
-  }
+  .search-wrap { margin-bottom: 10px; opacity: 0; pointer-events: none; transition: opacity .2s; height: 0; overflow: hidden; }
+  .search-wrap.visible { opacity: 1; pointer-events: auto; height: auto; }
+  .search-row { display: flex; align-items: center; background: rgba(118,118,128,0.12); border-radius: 10px; padding: 0 10px; height: 36px; gap: 7px; }
+  .search-row input { flex: 1; border: none; outline: none; background: transparent; font-family: var(--font); font-size: 15px; color: var(--text); }
   .search-row input::placeholder { color: var(--text2); }
-
   .list-wrap { padding: 0 16px; }
-  .list-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .item-row {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
-    gap: 10px;
-    border-bottom: 1px solid var(--sep);
-    min-height: 56px;
-    cursor: default;
-  }
+  .list-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .item-row { display: flex; align-items: center; padding: 10px 14px; gap: 10px; border-bottom: 1px solid var(--sep); min-height: 56px; }
   .item-row:last-child { border-bottom: none; }
-
-  .item-left {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .item-name {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  .item-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .item-name { font-size: 16px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .item-badge { font-size: 11px; font-weight: 500; }
   .badge-zero { color: var(--red); }
-  .badge-low  { color: var(--orange); }
-
-  .stepper {
-    display: flex;
-    align-items: center;
-    background: rgba(118,118,128,0.12);
-    border-radius: 8px;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-  .step-btn {
-    background: none;
-    border: none;
-    width: 28px;
-    height: 30px;
-    font-size: 18px;
-    color: var(--accent);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font);
-    flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .badge-low { color: var(--orange); }
+  .stepper { display: flex; align-items: center; background: rgba(118,118,128,0.12); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+  .step-btn { background: none; border: none; width: 28px; height: 30px; font-size: 18px; color: var(--accent); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: var(--font); flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
   .step-btn:active { background: rgba(0,122,255,0.1); }
-  .step-num {
-    width: 36px;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    font-family: var(--font);
-    border: none;
-    outline: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-  }
+  .step-num { width: 36px; text-align: center; font-size: 15px; font-weight: 600; color: var(--text); font-family: var(--font); border: none; outline: none; background: transparent; padding: 0; cursor: pointer; }
   .step-num:focus { background: rgba(0,122,255,0.08); border-radius: 4px; }
-
-  .delete-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--red);
-    border-radius: 8px;
-    background: transparent;
-    cursor: pointer;
-    flex-shrink: 0;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .15s, transform .15s;
-    transform: scale(0.85);
-  }
-  .delete-btn.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1);
-    animation: popIn .18s ease;
-  }
-  @keyframes popIn {
-    from { transform: scale(0.7); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-  }
+  .delete-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 2px solid var(--red); border-radius: 8px; background: transparent; cursor: pointer; flex-shrink: 0; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; transform: scale(0.85); }
+  .delete-btn.show { opacity: 1; pointer-events: auto; transform: scale(1); animation: popIn .18s ease; }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .delete-btn svg { pointer-events: none; }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text2);
-    font-size: 15px;
-  }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); font-size: 15px; }
   .empty-state .emoji { font-size: 40px; display: block; margin-bottom: 10px; }
 </style>
 </head>
@@ -250,14 +65,12 @@
     </div>
   </div>
 </div>
-
 <div class="list-wrap" id="listWrap"></div>
 
 <script>
 const STORE_KEY = 'venerem_inv_v5';
 let products = [];
 let longPressTimer = null;
-let longPressTarget = null;
 
 function load() {
   try { products = JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { products = []; }
@@ -266,80 +79,69 @@ function save() {
   localStorage.setItem(STORE_KEY, JSON.stringify(products));
 }
 
+function hideAllDeleteBtns() {
+  document.querySelectorAll('.delete-btn.show').forEach(b => b.classList.remove('show'));
+}
+
+// Tocar cualquier parte fuera de una fila oculta el botón de borrar
+document.addEventListener('touchstart', e => {
+  if (!e.target.closest('.item-row')) hideAllDeleteBtns();
+}, { passive: true });
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('.item-row')) hideAllDeleteBtns();
+});
+
 function addProduct() {
   const inp = document.getElementById('addInput');
   const name = inp.value.trim();
   if (!name) return;
   products.unshift({ id: Date.now(), name, qty: 0 });
-  save();
-  inp.value = '';
-  toggleAddBtn();
-  render();
+  save(); inp.value = ''; toggleAddBtn(); render();
 }
-
 document.getElementById('addInput').addEventListener('input', toggleAddBtn);
-document.getElementById('addInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addProduct();
-});
+document.getElementById('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') addProduct(); });
 function toggleAddBtn() {
-  const v = document.getElementById('addInput').value.trim().length > 0;
-  document.getElementById('addBtn').classList.toggle('visible', v);
+  document.getElementById('addBtn').classList.toggle('visible', document.getElementById('addInput').value.trim().length > 0);
 }
 
 function updateQty(id, delta) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   p.qty = Math.max(0, parseFloat((p.qty + delta).toFixed(4)));
-  save();
-  render();
+  save(); render();
 }
-
 function setQty(id, val) {
   const p = products.find(x => x.id === id);
   if (!p) return;
   const n = parseFloat(val);
   p.qty = isNaN(n) ? p.qty : Math.max(0, parseFloat(n.toFixed(4)));
-  save();
-  render();
+  save(); render();
 }
-
 function deleteProduct(id) {
   products = products.filter(x => x.id !== id);
-  save();
-  render();
+  save(); render();
 }
-
-// Ocultar todos los botones de borrar al tocar fuera
-document.addEventListener('touchstart', e => {
-  if (!e.target.closest('.item-row')) {
-    document.querySelectorAll('.delete-btn.show').forEach(b => b.classList.remove('show'));
-  }
-}, { passive: true });
 
 function startLongPress(delBtn) {
   cancelLongPress();
   longPressTimer = setTimeout(() => {
-    // Ocultar otros botones primero
-    document.querySelectorAll('.delete-btn.show').forEach(b => b.classList.remove('show'));
+    hideAllDeleteBtns();
     delBtn.classList.add('show');
   }, 500);
-  longPressTarget = delBtn;
 }
-
 function cancelLongPress() {
-  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  clearTimeout(longPressTimer);
+  longPressTimer = null;
 }
 
 function render() {
   const q = (document.getElementById('searchInput').value || '').toLowerCase();
   const filtered = q ? products.filter(p => p.name.toLowerCase().includes(q)) : products;
-
   document.getElementById('searchWrap').classList.toggle('visible', products.length > 0);
-
   const wrap = document.getElementById('listWrap');
 
   if (filtered.length === 0) {
-    wrap.innerHTML = `<div class="empty-state"><span class="emoji">📦</span>${q ? 'Sin resultados para "'+q+'"' : 'Agrega tu primer producto arriba.'}</div>`;
+    wrap.innerHTML = `<div class="empty-state"><span class="emoji">📦</span>${q ? 'Sin resultados para "' + q + '"' : 'Agrega tu primer producto arriba.'}</div>`;
     return;
   }
 
@@ -356,7 +158,6 @@ function render() {
     const nameEl = document.createElement('div');
     nameEl.className = 'item-name';
     nameEl.textContent = p.name;
-
     left.appendChild(nameEl);
 
     if (p.qty === 0) {
@@ -385,9 +186,9 @@ function render() {
     numInp.type = 'text';
     numInp.inputMode = 'decimal';
     numInp.value = p.qty;
-    numInp.addEventListener('focus', function() { this.select(); });
-    numInp.addEventListener('blur', function() { setQty(p.id, this.value); });
-    numInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') this.blur(); });
+    numInp.addEventListener('focus', function () { this.select(); });
+    numInp.addEventListener('blur', function () { setQty(p.id, this.value); });
+    numInp.addEventListener('keydown', function (e) { if (e.key === 'Enter') this.blur(); });
 
     const plus = document.createElement('button');
     plus.className = 'step-btn';
@@ -406,17 +207,16 @@ function render() {
       <line x1="7" y1="8" x2="7" y2="13" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="11" y1="8" x2="11" y2="13" stroke="#FF3B30" stroke-width="1.5" stroke-linecap="round"/>
     </svg>`;
+    delBtn.addEventListener('touchend', e => { e.preventDefault(); deleteProduct(p.id); });
     delBtn.onclick = () => deleteProduct(p.id);
 
-    // Long press en toda la fila izquierda
+    // Long press en toda la fila (excepto stepper y botón borrar)
     row.addEventListener('touchstart', e => {
       if (e.target.closest('.stepper') || e.target.closest('.delete-btn')) return;
       startLongPress(delBtn);
     }, { passive: true });
     row.addEventListener('touchend', cancelLongPress);
     row.addEventListener('touchmove', cancelLongPress, { passive: true });
-
-    // Mouse (desktop)
     row.addEventListener('mousedown', e => {
       if (e.target.closest('.stepper') || e.target.closest('.delete-btn')) return;
       startLongPress(delBtn);
